@@ -1,0 +1,53 @@
+p{
+    color: gray;
+}
+
+table{
+    border: 2px solid white;
+    border-collapse: collapse;
+    width: 30%;
+    height: 80vh;
+}
+
+td{
+    border: 2px solid white;
+    border-collapse: collapse; 
+    width: 3%;
+}
+
+.T{
+    background-color: red;
+}
+
+.S{
+    background-color: rgb(0, 255, 242);
+}
+
+.Z{
+    background-color: rgb(166, 255, 0);
+}
+
+.J{
+    background-color: blue;
+}
+
+.L{
+    background-color: rgb(255, 0, 157);
+}
+
+.O{
+    background-color: rgb(255, 187, 0);
+}
+
+.I{
+    background-color: rgb(0, 255, 0);
+}
+
+body{
+    color: gray;
+    background-color: black;
+}
+
+h1{
+    color: gray;
+}
