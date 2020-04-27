@@ -9,7 +9,8 @@ let y = 12;
 let type = genPieceType();
 let rot = 0;
 let key = "";
-let activeCellArr = [[[4,12]],[5,12],[5,13],[6,12]];
+let activeCellArr = [[[]],[],[],[]];
+let potentialCellArr = [[[]],[],[],[]];
 
 function drawGrid(){
     let html = "";
@@ -39,23 +40,66 @@ function undrawPiece(){
     });
 }
 
-function placedBelowActive(){
-    let placedBelow = false;
-    activeCellArr.forEach(arr => {
-        if(document.getElementById(`cell-${arr[0]}-${arr[1]-1}`).classList.contains('placed')){
-            placedBelow = true;
-        }
+function piecesOverlap(cellArr){
+    let overlap = false;
+    cellArr.forEach(arr => {
+        if(document.getElementById(`cell-${arr[0]}-${arr[1]}`).classList.contains('placed')){
+            overlap = true;
+        } 
     });
-    return placedBelow;
+    return overlap;
+}
+
+function placedBelowActive(){
+    let shiftedArr = activeCellArr.map(arr => [arr[0], arr[1]-1]);
+    return piecesOverlap(shiftedArr);
+}
+
+function bottomContact(){
+    let bottomRow = false;
+    activeCellArr.forEach(arr => {
+        if (arr[1] === 0){
+            bottomRow = true;
+        }
+    })
+    return bottomRow;
+}
+
+function clearLines(){
+    for (i=0; i<=14; i++){
+        let completed = true;
+        for (j=0; j<=9; j++){
+            if (!document.getElementById(`cell-${j}-${i}`).classList.contains('placed')){
+                completed = false;
+                break;
+            }
+        }
+        if (completed == true){
+            // For each cell in a row equal to or above k, replace contents with the row above it
+            //   But the contents of the cell are determined by the classes!
+            for (k=i; k<14; k++){
+                for (l=0; l<=9; l++){
+                    document.getElementById(`cell-${l}-${k}`).className = document.getElementById(`cell-${l}-${k+1}`).className;
+                }
+            }
+            let emptyRow = "";
+            for (l=0; l<=9;l++){
+                emptyRow += `<td id=cell-${l}-14>`;
+            }
+            document.getElementById("row-14").innerHTML = emptyRow;
+            i--;  // we just shifted the next row back one index, but we still want to check it!
+        }
+    }
 }
 
 
 function moveDown(){
     // short circuiting behaviour ensures active piece not on last row during placeBelowActive function call
-    if (bottomContact(type, y, rot) || placedBelowActive()){
+    if (bottomContact() || placedBelowActive()){
         activeCellArr.forEach(arr => {
             document.getElementById(`cell-${arr[0]}-${arr[1]}`).classList.add('placed');
         });
+        clearLines();
         x = 3;
         y = 12;
         type = genPieceType();
@@ -74,25 +118,40 @@ window.addEventListener('keydown', e =>{
     key = e.key;
     if (key === "q"){
         if (withinBounds(type, rot, x-1)){
-            x-=1;
+            potentialCellArr = pieceToArr(type, x-1, y, rot);
+            if (!piecesOverlap(potentialCellArr)){
+                x-=1;
+            }
         }
     } else if (key === "e"){
         if (withinBounds(type, rot, x+1)){
-            x+=1;
+            potentialCellArr = pieceToArr(type, x+1, y, rot);
+            if (!piecesOverlap(potentialCellArr)){
+                x+=1;
+            }
         }
     } else if (key === "PageUp"){
         if (withinBounds(type, (rot+1) % 4, x)){
-            rot = (rot+1) % 4;
+            potentialCellArr = pieceToArr(type, x, y, (rot+1) % 4);
+            if (!piecesOverlap(potentialCellArr)){
+                rot = (rot+1) % 4;
+            }
         }
     } else if (key === "ArrowUp"){
         if (withinBounds(type, (rot+2) % 4, x)){
-            rot = (rot+2) % 4;
+            potentialCellArr = pieceToArr(type, x, y, (rot+2) % 4);
+            if (!piecesOverlap(potentialCellArr)){
+                rot = (rot+2) % 4;
+            }
         }
     } else if (key === "Home"){
         if (withinBounds(type, (rot+3) % 4, x)){
-            rot = (rot+3) % 4;
+            potentialCellArr = pieceToArr(type, x, y, (rot+3) % 4);
+            if (!piecesOverlap(potentialCellArr)){
+                rot = (rot+3) % 4;
+            }
         }
-    } else if (key === "/" && e.repeat === false){
+    } else if (key === "/" && e.repeat === false){   // fast drop activated once
         window.clearInterval(intervalID);
         intervalID = window.setInterval(moveDown, 100);
     }
