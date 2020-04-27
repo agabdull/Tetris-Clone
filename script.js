@@ -45,17 +45,26 @@ function undrawPiece(){
 
 window.addEventListener('keydown', e =>{
     key = e.key;
-    console.log(key);
     if (key === "q"){
-        x-=1;
+        if (withinBounds(type, rot, x-1)){
+            x-=1;
+        }
     } else if (key === "e"){
-        x+=1;
+        if (withinBounds(type, rot, x+1)){
+            x+=1;
+        }
     } else if (key === "PageUp"){
-        rot = (rot+1) % 4;
+        if (withinBounds(type, (rot+1) % 4, x)){
+            rot = (rot+1) % 4;
+        }
     } else if (key === "ArrowUp"){
-        rot = (rot+2) % 4;
+        if (withinBounds(type, (rot+2) % 4, x)){
+            rot = (rot+2) % 4;
+        }
     } else if (key === "Home"){
-        rot = (rot+3) % 4;
+        if (withinBounds(type, (rot+3) % 4, x)){
+            rot = (rot+3) % 4;
+        }
     }
 
     undrawPiece();

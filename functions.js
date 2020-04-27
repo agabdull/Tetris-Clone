@@ -97,3 +97,4 @@ function pieceToArr(type,x,y,rot){
         }
     }
 }
+
