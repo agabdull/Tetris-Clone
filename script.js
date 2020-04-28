@@ -18,10 +18,10 @@ let gameOver = false;
 let numLinesCleared = 0;
 let highscore = 0;
 
-if (localStorage.highscore){
-    highscore = parseInt(localStorage.highscore);
+if (localStorage.tetrisHighscore){
+    highscore = parseInt(localStorage.tetrisHighscore);
 } else {
-    localStorage.setItem('highscore', highscore);
+    localStorage.setItem('tetrisHighscore', highscore);
 }
 
 linesCleared.innerText = `Lines cleared: ${numLinesCleared}        High score: ${highscore}`;
@@ -134,7 +134,7 @@ function clearLines(){
             numLinesCleared += 1;
             if (numLinesCleared > highscore){
                 highscore = numLinesCleared;
-                localStorage.highscore = highscore;
+                localStorage.tetrisHighscore = highscore;
             }
             linesCleared.innerText = `Lines cleared: ${numLinesCleared}        High score: ${highscore}`;
         }
