@@ -1,7 +1,7 @@
-//Javascript's native modular arithmetic gives negative remainders when n is negative!
-//  The below function fixes this behaviour, so 0<= a%b < b for all values of "a"
-function mod(a, b) {
-    return ((a % b) + b) % b;
+function lower(cellArr){
+    for (i=0;i<4;i++){
+        cellArr[i][1] -= 1;
+    }
 }
 
 function intToPieceType(n){

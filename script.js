@@ -10,9 +10,8 @@ let type = genPieceType();
 let rot = 0;
 let key = "";
 let activeCellArr = [[[]],[],[],[]];
-let potentialCellArr = [[[]],[],[],[]];
 let ghostCellArr = [[[]],[],[],[]];
-let ghostY = -1;
+let potentialCellArr = [[[]],[],[],[]];
 
 
 function drawGrid(){
@@ -51,15 +50,6 @@ function undrawPiece(){
     });    
 }
 
-// start at bottom of grid, work up until we're not intersecting any placed cells
-function getGhostArray(){
-    ghostY = minGhostHeight(type, rot);  //makes sure the cells we check below are in a valid row (i.e. non-negative #)
-    while (piecesOverlap(pieceToArr(type, x, ghostY, rot))){
-        ghostY+=1;
-    }
-    return pieceToArr(type, x, ghostY, rot);
-}
-
 
 
 // returns true if the cells corresponding to elements of cellArr already have the class "placed"
@@ -75,16 +65,16 @@ function piecesOverlap(cellArr){
 }
 
 
-function placedBelowActive(){
-    let shiftedArr = activeCellArr.map(arr => [arr[0], arr[1]-1]);
+function placedBelowActive(cellArr){
+    let shiftedArr = cellArr.map(arr => [arr[0], arr[1]-1]);
     return piecesOverlap(shiftedArr);
 }
 
 
 
-function bottomContact(){
+function bottomContact(cellArr){
     let bottomRow = false;
-    activeCellArr.forEach(arr => {
+    cellArr.forEach(arr => {
         if (arr[1] === 0){
             bottomRow = true;
         }
@@ -93,25 +83,16 @@ function bottomContact(){
 }
 
 
-function instantDrop(){
-    undrawPiece();
-    y = ghostY;
-    activeCellArr = pieceToArr(type, x, y, rot);
-    drawPiece();
-
-    activeCellArr.forEach(arr => {
-        document.getElementById(`cell-${arr[0]}-${arr[1]}`).classList.add('placed');
-    });
-    clearLines();
-    x = 3;
-    y = 12;
-    type = genPieceType();
-    rot = 0;
-    activeCellArr = pieceToArr(type,x,y,rot);
-    ghostCellArr = getGhostArray();
-    drawPiece();
+// copy active piece to ghost array, then keep lowering it until it hits something
+function getGhostArray(){
+    for(i=0; i<4;i++){
+        ghostCellArr[i][0] = activeCellArr[i][0];
+        ghostCellArr[i][1] = activeCellArr[i][1];
+    }
+    while(!bottomContact(ghostCellArr) && !placedBelowActive(ghostCellArr)){
+        lower(ghostCellArr);
+    }
 }
-
 
 
 function clearLines(){
@@ -141,10 +122,31 @@ function clearLines(){
     }
 }
 
+function instantDrop(){
+    undrawPiece();
+    while(!bottomContact(activeCellArr) && !placedBelowActive(activeCellArr)){
+        lower(activeCellArr);
+        y-=1;
+    }
+    drawPiece();
+
+    activeCellArr.forEach(arr => {
+        document.getElementById(`cell-${arr[0]}-${arr[1]}`).classList.add('placed');
+    });
+    clearLines();
+    x = 3;
+    y = 12;
+    type = genPieceType();
+    rot = 0;
+    activeCellArr = pieceToArr(type,x,y,rot);
+    getGhostArray();
+    drawPiece();
+}
+
 
 function moveDown(){
     // short circuiting behaviour ensures active piece not on last row during placeBelowActive function call
-    if (bottomContact() || placedBelowActive()){
+    if (bottomContact(activeCellArr) || placedBelowActive(activeCellArr)){
         activeCellArr.forEach(arr => {
             document.getElementById(`cell-${arr[0]}-${arr[1]}`).classList.add('placed');
         });
@@ -154,7 +156,7 @@ function moveDown(){
         type = genPieceType();
         rot = 0;
         activeCellArr = pieceToArr(type,x,y,rot);
-        ghostCellArr = getGhostArray();
+        getGhostArray();
         drawPiece();
     } else {
         undrawPiece();
@@ -165,6 +167,21 @@ function moveDown(){
     }
 }
 
+
+function validPosition(type, x, y, rot){
+    let validPos = true;
+    if (withinBounds(type, rot, x)){
+        potentialCellArr = pieceToArr(type, x, y, rot);
+        if (piecesOverlap(potentialCellArr)){
+            validPos = false;
+        }
+    } else {
+        validPos = false;
+    }
+    return validPos;
+}
+
+
 window.addEventListener('keydown', e =>{
     key = e.key;
     if (key === "w"){
@@ -172,39 +189,24 @@ window.addEventListener('keydown', e =>{
 
     } else {
         if (key === "q"){
-            if (withinBounds(type, rot, x-1)){
-                potentialCellArr = pieceToArr(type, x-1, y, rot);
-                if (!piecesOverlap(potentialCellArr)){
-                    x-=1;
-                }
+            if (validPosition(type, x-1, y, rot)){
+                x-=1;
             }
         } else if (key === "e"){
-            if (withinBounds(type, rot, x+1)){
-                potentialCellArr = pieceToArr(type, x+1, y, rot);
-                if (!piecesOverlap(potentialCellArr)){
-                    x+=1;
-                }
+            if (validPosition(type, x+1, y, rot)){
+                x+=1;
             }
         } else if (key === "PageUp"){
-            if (withinBounds(type, (rot+1) % 4, x)){
-                potentialCellArr = pieceToArr(type, x, y, (rot+1) % 4);
-                if (!piecesOverlap(potentialCellArr)){
-                    rot = (rot+1) % 4;
-                }
+            if (validPosition(type, x, y, (rot+1)%4)){
+                rot = (rot+1)%4;
             }
         } else if (key === "ArrowUp"){
-            if (withinBounds(type, (rot+2) % 4, x)){
-                potentialCellArr = pieceToArr(type, x, y, (rot+2) % 4);
-                if (!piecesOverlap(potentialCellArr)){
-                    rot = (rot+2) % 4;
-                }
+            if (validPosition(type, x, y, (rot+2)%4)){
+                rot = (rot+2)%4;
             }
         } else if (key === "Home"){
-            if (withinBounds(type, (rot+3) % 4, x)){
-                potentialCellArr = pieceToArr(type, x, y, (rot+3) % 4);
-                if (!piecesOverlap(potentialCellArr)){
-                    rot = (rot+3) % 4;
-                }
+            if (validPosition(type, x, y, (rot+3)%4)){
+                rot = (rot+3)%4;
             }
         } else if (key === "/" && e.repeat === false){   // fast drop activated once
             window.clearInterval(intervalID);
@@ -213,7 +215,7 @@ window.addEventListener('keydown', e =>{
 
         undrawPiece();
         activeCellArr = pieceToArr(type,x,y,rot);
-        ghostCellArr = getGhostArray();
+        getGhostArray();
         drawPiece();
     }
 });
@@ -227,7 +229,7 @@ window.addEventListener('keyup', e =>{
 
 drawGrid();
 activeCellArr = pieceToArr(type,x,y,rot);
-ghostCellArr = getGhostArray();
+getGhostArray();
 drawPiece();
 
 var intervalID = window.setInterval(moveDown, 500);
