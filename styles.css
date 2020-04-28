@@ -15,6 +15,10 @@ td{
     width: 3%;
 }
 
+.ghost{
+    background-color: lightslategray;
+}
+
 .T{
     background-color: red;
 }
