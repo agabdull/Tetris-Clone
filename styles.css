@@ -5,8 +5,8 @@ p{
 table{
     border: 2px solid white;
     border-collapse: collapse;
-    width: 30%;
-    height: 80vh;
+    width: 25%;
+    height: 73vh;
 }
 
 td{
@@ -54,4 +54,8 @@ body{
 
 h1{
     color: gray;
+}
+
+#control-info{
+    height: 5vh;
 }

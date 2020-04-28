@@ -1,7 +1,8 @@
 //The table cell indices are 0-based
 
-let grid = document.querySelector("#main-grid");
-let gameOverMessage = document.getElementById('game-over-message');
+const grid = document.getElementById('main-grid');
+const gameOverMessage = document.getElementById('game-over-message');
+const linesCleared = document.getElementById('lines-cleared');
 
 const width = 10;
 const height= 18;
@@ -14,7 +15,16 @@ let activeCellArr = [[[]],[],[],[]];
 let ghostCellArr = [[[]],[],[],[]];
 let potentialCellArr = [[[]],[],[],[]];
 let gameOver = false;
+let numLinesCleared = 0;
+let highscore = 0;
 
+if (localStorage.highscore){
+    highscore = parseInt(localStorage.highscore);
+} else {
+    localStorage.setItem('highscore', highscore);
+}
+
+linesCleared.innerText = `Lines cleared: ${numLinesCleared}        High score: ${highscore}`;
 
 function drawGrid(){
     let html = "";
@@ -120,6 +130,13 @@ function clearLines(){
             }
             document.getElementById(`row-${height-1}`).innerHTML = emptyRow;
             i--;  // we just shifted the next row back one index, but we still want to check it!
+
+            numLinesCleared += 1;
+            if (numLinesCleared > highscore){
+                highscore = numLinesCleared;
+                localStorage.highscore = highscore;
+            }
+            linesCleared.innerText = `Lines cleared: ${numLinesCleared}        High score: ${highscore}`;
         }
     }
 }
@@ -155,6 +172,8 @@ function resetGame(){
 
     gameOverMessage.style.display = "none";
     gameOver = false;
+    numLinesCleared = 0;
+    linesCleared.innerText = `Lines cleared: ${numLinesCleared}        High score: ${highscore}`;
 
     intervalID = window.setInterval(moveDown, 500);
 }
@@ -243,7 +262,7 @@ window.addEventListener('keydown', e =>{
                 x+=1;
             }
 
-        } else if (key === "PageUp"){
+        } else if (key === "PageUp" || key === "ArrowRight"){
             if (validPosition(type, x, y, (rot+1)%4)){
                 rot = (rot+1)%4;
             } else if (validPosition(type, x+1, y, (rot+1)%4)){
@@ -260,7 +279,7 @@ window.addEventListener('keydown', e =>{
                 rot = (rot+1)%4;
            }
 
-        } else if (key === "ArrowUp"){
+        } else if (key === "ArrowUp" || key === "ArrowDown"){
             if (validPosition(type, x, y, (rot+2)%4)){
                 rot = (rot+2)%4;
             } else if (validPosition(type, x+1, y, (rot+2)%4)){
@@ -271,7 +290,7 @@ window.addEventListener('keydown', e =>{
                 rot = (rot+2)%4;
             }
 
-        } else if (key === "Home"){
+        } else if (key === "Home" || key === "ArrowLeft"){
             if (validPosition(type, x, y, (rot+3)%4)){
                 rot = (rot+3)%4;
             } else if (validPosition(type, x+1, y, (rot+3)%4)){

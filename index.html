@@ -8,7 +8,29 @@
 </head>
 <body>
     <table id="main-grid"></table>
-    <p id="game-over-message" style="display:none;"> Game Over!  Press "R" to play again! </p>
+    <div style="padding-top: 15px; padding-bottom: 15px;">
+        <p id ="lines-cleared" style="white-space: pre;"> Lines cleared: 0        High score: 0</p>
+        <p id="game-over-message" style="display:none;"> Game Over!  Press "R" to play again! </p>
+    </div>
+
+    <table id="control-info">
+        <tr>
+            <td>Move left</td>
+            <td>Move right</td>
+            <td>Rotate left</td>
+            <td>Rotate right</td>
+            <td>Flip</td>
+            <td>Drop</td>
+        </tr>
+        <tr>
+            <td>Q</td>
+            <td>E</td>
+            <td>LeftArrow / Home</td>
+            <td>RightArrow / PageUp</td>
+            <td>DownArrow / UpArrow</td>
+            <td> W </td>
+        </tr>
+    </table>
 </body>
 <script src="withinBounds.js"></script>
 <script src = "functions.js"></script>
