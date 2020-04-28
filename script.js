@@ -186,6 +186,9 @@ window.addEventListener('keydown', e =>{
     key = e.key;
     if (key === "w"){
         instantDrop();
+    } else if (key === "/" && e.repeat === false){   // fast drop activated once
+        window.clearInterval(intervalID);
+        intervalID = window.setInterval(moveDown, 100);
 
     } else {
         if (key === "q"){
@@ -196,21 +199,52 @@ window.addEventListener('keydown', e =>{
             if (validPosition(type, x+1, y, rot)){
                 x+=1;
             }
+
         } else if (key === "PageUp"){
             if (validPosition(type, x, y, (rot+1)%4)){
                 rot = (rot+1)%4;
-            }
+            } else if (validPosition(type, x+1, y, (rot+1)%4)){
+                x+=1;
+                rot = (rot+1)%4;
+            } else if (validPosition(type, x-1, y, (rot+1)%4)){
+                x-=1;
+                rot = (rot+1)%4;
+            }  else if (validPosition(type, x-2, y, (rot+1)%4) && type =="I" && rot==2){
+                 x-=2;
+                 rot = (rot+1)%4;
+            } else if (validPosition(type, x+2, y, (rot+1)%4) && type =="I" && rot==0){
+                x+=2;
+                rot = (rot+1)%4;
+           }
+
         } else if (key === "ArrowUp"){
             if (validPosition(type, x, y, (rot+2)%4)){
                 rot = (rot+2)%4;
+            } else if (validPosition(type, x+1, y, (rot+2)%4)){
+                x+=1;
+                rot = (rot+2)%4;
+            } else if (validPosition(type, x-1, y, (rot+2)%4)){
+                x-=1;
+                rot = (rot+2)%4;
             }
+
         } else if (key === "Home"){
             if (validPosition(type, x, y, (rot+3)%4)){
                 rot = (rot+3)%4;
+            } else if (validPosition(type, x+1, y, (rot+3)%4)){
+                x+=1;
+                rot = (rot+3)%4;
+            } else if (validPosition(type, x-1, y, (rot+3)%4)){
+                x-=1;
+                rot = (rot+3)%4;
             }
-        } else if (key === "/" && e.repeat === false){   // fast drop activated once
-            window.clearInterval(intervalID);
-            intervalID = window.setInterval(moveDown, 100);
+            else if (validPosition(type, x-2, y, (rot+3)%4) && type =="I" && rot==2){
+                x-=2;
+                rot = (rot+3)%4;
+           } else if (validPosition(type, x+2, y, (rot+3)%4) && type =="I" && rot==0){
+               x+=2;
+               rot = (rot+3)%4;
+          }
         }
 
         undrawPiece();
