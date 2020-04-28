@@ -1,9 +1,10 @@
 //The table cell indices are 0-based
 
 let grid = document.querySelector("#main-grid");
+let gameOverMessage = document.getElementById('game-over-message');
 
 const width = 10;
-const height= 15;
+const height= 18;
 let x = 3;
 let y = 16;
 let type = genPieceType();
@@ -12,12 +13,17 @@ let key = "";
 let activeCellArr = [[[]],[],[],[]];
 let ghostCellArr = [[[]],[],[],[]];
 let potentialCellArr = [[[]],[],[],[]];
+let gameOver = false;
 
 
 function drawGrid(){
     let html = "";
     for(i=height-1; i>=0; i--){
-        html += `<tr id="row-${i}">`;
+        if (i>14){
+            html += `<tr id="row-${i}" style ="display: none;">`;
+        } else {
+            html += `<tr id="row-${i}">`;
+        }
         for(j=0; j<width; j++){
             html += `<td id="cell-${j}-${i}"> </td>`;
         }
@@ -28,9 +34,7 @@ function drawGrid(){
 
 function drawPiece(){
     activeCellArr.forEach(arr => {
-        if (arr[1] <= 14){
-            document.getElementById(`cell-${arr[0]}-${arr[1]}`).classList.add(`${type}`);
-        }
+        document.getElementById(`cell-${arr[0]}-${arr[1]}`).classList.add(`${type}`);
     });
 
     ghostCellArr.forEach(arr => {
@@ -40,9 +44,7 @@ function drawPiece(){
 
 function undrawPiece(){
     activeCellArr.forEach(arr => {
-        if (arr[1] <= 14){
             document.getElementById(`cell-${arr[0]}-${arr[1]}`).classList.remove(`${type}`);
-        }
     });
 
     ghostCellArr.forEach(arr => {
@@ -57,10 +59,8 @@ function undrawPiece(){
 function piecesOverlap(cellArr){
     let overlap = false;
     cellArr.forEach(arr => {
-        if(arr[1]<=14){
-            if(document.getElementById(`cell-${arr[0]}-${arr[1]}`).classList.contains('placed')){
-                overlap = true;
-            } 
+        if(document.getElementById(`cell-${arr[0]}-${arr[1]}`).classList.contains('placed')){
+            overlap = true;
         }
     });
     return overlap;
@@ -98,7 +98,7 @@ function getGhostArray(){
 
 
 function clearLines(){
-    for (i=0; i<=14; i++){
+    for (i=0; i < height; i++){
         let completed = true;
         for (j=0; j<=9; j++){
             if (!document.getElementById(`cell-${j}-${i}`).classList.contains('placed')){
@@ -109,16 +109,16 @@ function clearLines(){
         if (completed == true){
             // For each cell in a row equal to or above k, replace contents with the row above it
             //   But the contents of the cell are determined by the classes!
-            for (k=i; k<14; k++){
+            for (k=i; k< height-1; k++){
                 for (l=0; l<=9; l++){
                     document.getElementById(`cell-${l}-${k}`).className = document.getElementById(`cell-${l}-${k+1}`).className;
                 }
             }
             let emptyRow = "";
             for (l=0; l<=9;l++){
-                emptyRow += `<td id=cell-${l}-14>`;
+                emptyRow += `<td id=cell-${l}-${height-1}>`;
             }
-            document.getElementById("row-14").innerHTML = emptyRow;
+            document.getElementById(`row-${height-1}`).innerHTML = emptyRow;
             i--;  // we just shifted the next row back one index, but we still want to check it!
         }
     }
@@ -138,6 +138,27 @@ function newPiece(){
     rot = 0;
 }
 
+function gameOverProtocol(){
+    window.clearInterval(intervalID);
+    gameOver = true;
+    gameOverMessage.style.display = "inline";
+}
+
+function resetGame(){
+    document.querySelectorAll('td').forEach(cell => {
+        cell.className = "";
+    });
+    newPiece();
+    activeCellArr = pieceToArr(type,x,y,rot);
+    getGhostArray();
+    drawPiece();
+
+    gameOverMessage.style.display = "none";
+    gameOver = false;
+
+    intervalID = window.setInterval(moveDown, 500);
+}
+
 function instantDrop(){
     undrawPiece();
     while(!bottomContact(activeCellArr) && !placedBelowActive(activeCellArr)){
@@ -150,8 +171,14 @@ function instantDrop(){
     clearLines();
     newPiece();
     activeCellArr = pieceToArr(type,x,y,rot);
-    getGhostArray();
-    drawPiece();
+
+    if (piecesOverlap(activeCellArr)){ // game over, our new piece is already in an invalid position
+        gameOverProtocol();
+
+    } else {
+        getGhostArray();
+        drawPiece();
+    }
 }
 
 
@@ -162,8 +189,13 @@ function moveDown(){
         clearLines();
         newPiece();
         activeCellArr = pieceToArr(type,x,y,rot);
-        getGhostArray();
-        drawPiece();
+
+        if (piecesOverlap(activeCellArr)){ // game over, our new piece is already in an invalid position
+            gameOverProtocol();
+        } else {
+            getGhostArray();
+            drawPiece();
+        }
     } else {
         undrawPiece();
         y-=1;
@@ -190,6 +222,11 @@ function validPosition(type, x, y, rot){
 
 window.addEventListener('keydown', e =>{
     key = e.key;
+    if (gameOver === true){
+        if (key === "r"){
+            resetGame();
+        }
+    } else {
     if (key === "w"){
         instantDrop();
     } else if (key === "/" && e.repeat === false){   // fast drop activated once
@@ -258,6 +295,7 @@ window.addEventListener('keydown', e =>{
         getGhostArray();
         drawPiece();
     }
+}
 });
 
 window.addEventListener('keyup', e =>{
