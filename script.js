@@ -5,7 +5,7 @@ let grid = document.querySelector("#main-grid");
 const width = 10;
 const height= 15;
 let x = 3;
-let y = 12;
+let y = 16;
 let type = genPieceType();
 let rot = 0;
 let key = "";
@@ -57,9 +57,11 @@ function undrawPiece(){
 function piecesOverlap(cellArr){
     let overlap = false;
     cellArr.forEach(arr => {
-        if(document.getElementById(`cell-${arr[0]}-${arr[1]}`).classList.contains('placed')){
-            overlap = true;
-        } 
+        if(arr[1]<=14){
+            if(document.getElementById(`cell-${arr[0]}-${arr[1]}`).classList.contains('placed')){
+                overlap = true;
+            } 
+        }
     });
     return overlap;
 }
@@ -122,6 +124,20 @@ function clearLines(){
     }
 }
 
+
+function placePiece(){
+    activeCellArr.forEach(arr => {
+        document.getElementById(`cell-${arr[0]}-${arr[1]}`).classList.add('placed');
+    });
+}
+
+function newPiece(){
+    x = 3;
+    y = 16;
+    type = genPieceType();
+    rot = 0;
+}
+
 function instantDrop(){
     undrawPiece();
     while(!bottomContact(activeCellArr) && !placedBelowActive(activeCellArr)){
@@ -130,14 +146,9 @@ function instantDrop(){
     }
     drawPiece();
 
-    activeCellArr.forEach(arr => {
-        document.getElementById(`cell-${arr[0]}-${arr[1]}`).classList.add('placed');
-    });
+    placePiece();
     clearLines();
-    x = 3;
-    y = 12;
-    type = genPieceType();
-    rot = 0;
+    newPiece();
     activeCellArr = pieceToArr(type,x,y,rot);
     getGhostArray();
     drawPiece();
@@ -147,14 +158,9 @@ function instantDrop(){
 function moveDown(){
     // short circuiting behaviour ensures active piece not on last row during placeBelowActive function call
     if (bottomContact(activeCellArr) || placedBelowActive(activeCellArr)){
-        activeCellArr.forEach(arr => {
-            document.getElementById(`cell-${arr[0]}-${arr[1]}`).classList.add('placed');
-        });
+        placePiece();
         clearLines();
-        x = 3;
-        y = 12;
-        type = genPieceType();
-        rot = 0;
+        newPiece();
         activeCellArr = pieceToArr(type,x,y,rot);
         getGhostArray();
         drawPiece();
@@ -259,7 +265,7 @@ window.addEventListener('keyup', e =>{
         window.clearInterval(intervalID);
         intervalID = window.setInterval(moveDown, 500);
     }
-})
+});
 
 drawGrid();
 activeCellArr = pieceToArr(type,x,y,rot);
