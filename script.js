@@ -280,13 +280,13 @@ window.addEventListener('keydown', e =>{
         if (key === "q"){
             if (validPosition(type, x-1, y, rot)){
                 x-=1;
-                leftRepeater = window.setInterval(leftMove, 90);
             }
+            leftRepeater = window.setInterval(leftMove, 90);
         } else if (key === "e"){
             if (validPosition(type, x+1, y, rot)){
                 x+=1;
-                rightRepeater = window.setInterval(rightMove, 90);
             }
+            rightRepeater = window.setInterval(rightMove, 90);
 
         } else if (key === "p"){
             if (validPosition(type, x, y, (rot+1)%4)){
@@ -352,6 +352,12 @@ window.addEventListener('keyup', e =>{
     } else if (e.key === "e"){
         window.clearInterval(rightRepeater);
     }
+});
+
+// if user alt tabs while holding move key, reset the movement
+window.addEventListener('blur', () =>{ 
+    window.clearInterval(leftRepeater);
+    window.clearInterval(rightRepeater);
 });
 
 drawGrid();
