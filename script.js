@@ -239,27 +239,53 @@ function validPosition(type, x, y, rot){
 }
 
 
+function leftMove(){
+    if (validPosition(type, x-1, y, rot)){
+        x-=1;
+    }
+
+    undrawPiece();
+    activeCellArr = pieceToArr(type,x,y,rot);
+    getGhostArray();
+    drawPiece();
+}
+
+function rightMove(){
+    if (validPosition(type, x+1, y, rot)){
+        x+=1;
+    }
+
+    undrawPiece();
+    activeCellArr = pieceToArr(type,x,y,rot);
+    getGhostArray();
+    drawPiece();
+}
+
+
 window.addEventListener('keydown', e =>{
     key = e.key;
     if (gameOver === true){
         if (key === "r"){
             resetGame();
         }
-    } else {
+    } else if (e.repeat === false){
     if (key === "w"){
         instantDrop();
-    } else if (key === "/" && e.repeat === false){   // fast drop activated once
+    } else if (key === "/"){   // fast drop activated once
         window.clearInterval(intervalID);
-        intervalID = window.setInterval(moveDown, 100);
+        moveDown();
+        intervalID = window.setInterval(moveDown, 60);
 
     } else {
         if (key === "q"){
             if (validPosition(type, x-1, y, rot)){
                 x-=1;
+                leftRepeater = window.setInterval(leftMove, 90);
             }
         } else if (key === "e"){
             if (validPosition(type, x+1, y, rot)){
                 x+=1;
+                rightRepeater = window.setInterval(rightMove, 90);
             }
 
         } else if (key === "PageUp" || key === "ArrowRight"){
@@ -321,6 +347,10 @@ window.addEventListener('keyup', e =>{
     if(e.key === "/"){
         window.clearInterval(intervalID);
         intervalID = window.setInterval(moveDown, 500);
+    } else if (e.key === "q"){
+        window.clearInterval(leftRepeater);
+    } else if (e.key === "e"){
+        window.clearInterval(rightRepeater);
     }
 });
 
@@ -329,4 +359,6 @@ activeCellArr = pieceToArr(type,x,y,rot);
 getGhostArray();
 drawPiece();
 
-var intervalID = window.setInterval(moveDown, 500);
+let intervalID = window.setInterval(moveDown, 500);
+let rightRepeater;
+let leftRepeater;
