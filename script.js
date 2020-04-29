@@ -271,7 +271,7 @@ window.addEventListener('keydown', e =>{
     } else if (e.repeat === false){
     if (key === "w"){
         instantDrop();
-    } else if (key === "/"){   // fast drop activated once
+    } else if (key === "9"){   // fast drop activated once
         window.clearInterval(intervalID);
         moveDown();
         intervalID = window.setInterval(moveDown, 60);
@@ -288,7 +288,7 @@ window.addEventListener('keydown', e =>{
                 rightRepeater = window.setInterval(rightMove, 90);
             }
 
-        } else if (key === "PageUp" || key === "ArrowRight"){
+        } else if (key === "p"){
             if (validPosition(type, x, y, (rot+1)%4)){
                 rot = (rot+1)%4;
             } else if (validPosition(type, x+1, y, (rot+1)%4)){
@@ -305,7 +305,7 @@ window.addEventListener('keydown', e =>{
                 rot = (rot+1)%4;
            }
 
-        } else if (key === "ArrowUp" || key === "ArrowDown"){
+        } else if (key === "o"){
             if (validPosition(type, x, y, (rot+2)%4)){
                 rot = (rot+2)%4;
             } else if (validPosition(type, x+1, y, (rot+2)%4)){
@@ -316,7 +316,7 @@ window.addEventListener('keydown', e =>{
                 rot = (rot+2)%4;
             }
 
-        } else if (key === "Home" || key === "ArrowLeft"){
+        } else if (key === "i"){
             if (validPosition(type, x, y, (rot+3)%4)){
                 rot = (rot+3)%4;
             } else if (validPosition(type, x+1, y, (rot+3)%4)){
@@ -344,7 +344,7 @@ window.addEventListener('keydown', e =>{
 });
 
 window.addEventListener('keyup', e =>{
-    if(e.key === "/"){
+    if(e.key === "9"){
         window.clearInterval(intervalID);
         intervalID = window.setInterval(moveDown, 500);
     } else if (e.key === "q"){
