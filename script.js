@@ -3,20 +3,24 @@
 const grid = document.getElementById('main-grid');
 const gameOverMessage = document.getElementById('game-over-message');
 const linesCleared = document.getElementById('lines-cleared');
+const nextGrid = document.getElementById('next-grid');
 
 const width = 10;
 const height= 18;
 let x = 3;
 let y = 16;
 let type = genPieceType();
+let nextType = genPieceType();
 let rot = 0;
 let key = "";
 let activeCellArr = [[[]],[],[],[]];
 let ghostCellArr = [[[]],[],[],[]];
 let potentialCellArr = [[[]],[],[],[]];
+let nextPieceArr = [[[]],[],[],[]];
 let gameOver = false;
 let numLinesCleared = 0;
 let highscore = 0;
+
 
 if (localStorage.tetrisHighscore){
     highscore = parseInt(localStorage.tetrisHighscore);
@@ -25,6 +29,8 @@ if (localStorage.tetrisHighscore){
 }
 
 linesCleared.innerText = `Lines cleared: ${numLinesCleared}        High score: ${highscore}`;
+
+
 
 function drawGrid(){
     let html = "";
@@ -40,6 +46,27 @@ function drawGrid(){
         html += "</tr>";
 }
     grid.innerHTML = html;
+
+    html = ""
+    // draw next piece grid
+    for(i=3; i>=0; i--){
+        html += `<tr id="next-row-${i}">`;
+        for(j=0; j<=2; j++){
+            html += `<td id="next-cell-${j}-${i}" class="next-cell"> </td>`;
+        }
+        html += "</tr>";
+}
+    nextGrid.innerHTML = html;
+}
+
+function drawNextPiece(){
+    document.querySelectorAll(".next-cell").forEach(cell => {
+        cell.classList.remove("T", "S", "Z", "J", "L", "O", "I");
+    });
+    nextPieceArr = pieceToArr(nextType, 0, 2, 0); // active cells positions relative to nextGrid
+    nextPieceArr.forEach(arr => {
+        document.getElementById(`next-cell-${arr[0]}-${arr[1]}`).classList.add(`${nextType}`);
+    });
 }
 
 function drawPiece(){
@@ -151,8 +178,10 @@ function placePiece(){
 function newPiece(){
     x = 3;
     y = 16;
-    type = genPieceType();
+    type = nextType;
     rot = 0;
+
+    nextType = genPieceType();
 }
 
 function gameOverProtocol(){
@@ -163,12 +192,14 @@ function gameOverProtocol(){
 
 function resetGame(){
     document.querySelectorAll('td').forEach(cell => {
-        cell.className = "";
+        // still want to keep the class "next-cell", though, to distinguish grids
+        cell.classList.remove("placed", "ghost", "T", "S", "Z", "J", "L", "O", "I"); 
     });
     newPiece();
     activeCellArr = pieceToArr(type,x,y,rot);
     getGhostArray();
     drawPiece();
+    drawNextPiece();
 
     gameOverMessage.style.display = "none";
     gameOver = false;
@@ -197,6 +228,7 @@ function instantDrop(){
     } else {
         getGhostArray();
         drawPiece();
+        drawNextPiece();
     }
 }
 
@@ -214,6 +246,7 @@ function moveDown(){
         } else {
             getGhostArray();
             drawPiece();
+            drawNextPiece();
         }
     } else {
         undrawPiece();
@@ -364,6 +397,7 @@ drawGrid();
 activeCellArr = pieceToArr(type,x,y,rot);
 getGhostArray();
 drawPiece();
+drawNextPiece();
 
 let intervalID = window.setInterval(moveDown, 500);
 let rightRepeater;

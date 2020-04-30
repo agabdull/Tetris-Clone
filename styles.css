@@ -15,6 +15,16 @@ td{
     width: 3%;
 }
 
+#next-grid{
+    border: none;
+    height:20vh;
+    width: 120%
+}
+
+.next-cell{
+    border: none;
+}
+
 .ghost{
     background-color: lightslategray;
 }
